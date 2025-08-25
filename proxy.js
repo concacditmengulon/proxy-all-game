@@ -4,15 +4,26 @@ const proxy = require('express-http-proxy');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Định nghĩa các API backend
+// Middleware CORS để cho phép các yêu cầu từ mọi nguồn
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+    }
+    next();
+});
+
+// Định nghĩa các API backend với tên tùy chỉnh
 const API_BACKENDS = {
   'luckwin': 'https://api-luckwin-vannhat-bando.onrender.com',
-  'luckwinmd5': 'https://api-luckwin-vannhat-banhu-2.onrender.com/api/luckwin/vannhat'
-  'sicbosun' : 'https://tele-idolvannhat-sicbo-sun.onrender.com/api/sicbo/vannhat'
+  'game-tool': 'https://api-another-game.onrender.com',
+  'other-api': 'https://example-api.onrender.com'
 };
 
-// Hàm proxy chung cho tất cả các backend
-const proxyMiddleware = (req, res, next) => {
+// Middleware proxy chung cho tất cả các backend
+app.use('/:apiName/*', (req, res, next) => {
   const apiName = req.params.apiName;
   const targetUrl = API_BACKENDS[apiName];
 
@@ -20,28 +31,22 @@ const proxyMiddleware = (req, res, next) => {
     return res.status(404).send('API not found');
   }
 
-  // Tạo proxy cho API tương ứng
-  const proxyHandler = proxy(targetUrl, {
+  // Chuyển tiếp yêu cầu đến backend tương ứng
+  proxy(targetUrl, {
     proxyReqPathResolver: (req) => {
-      // Lấy phần đường dẫn còn lại sau tên API
-      const url = require('url');
-      const path = url.parse(req.originalUrl).path;
+      const path = req.originalUrl;
       const newPath = path.substring(`/${apiName}`.length);
       return newPath;
     },
     proxyReqOptDecorator: (proxyReqOpts, originalReq) => {
-      // Thêm các headers cần thiết nếu có
-      proxyReqOpts.headers['x-forwarded-for'] = originalReq.ip;
+      // Đảm bảo host header được đặt đúng
+      proxyReqOpts.headers['host'] = new URL(targetUrl).hostname;
       return proxyReqOpts;
     }
-  });
+  })(req, res, next);
+});
 
-  proxyHandler(req, res, next);
-};
-
-// Sử dụng middleware proxy
-app.use('/:apiName/*', proxyMiddleware);
-
+// Bắt đầu lắng nghe
 app.listen(PORT, () => {
   console.log(`API Proxy listening on port ${PORT}`);
 });
