@@ -1,0 +1,13 @@
+{
+  "name": "api-proxy",
+  "version": "1.0.0",
+  "description": "A single file API proxy for multiple backends",
+  "main": "proxy.js",
+  "scripts": {
+    "start": "node proxy.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "express-http-proxy": "^2.0.0"
+  }
+}
