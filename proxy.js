@@ -17,7 +17,10 @@ app.use((req, res, next) => {
 
 // Định nghĩa các API backend với tên tùy chỉnh
 const API_BACKENDS = {
-  'luckwin': 'https://api-luckwin-vannhat-bando.onrender.com',
+  'luckwinmd5': 'https://api-luckwin-vannhat-bando.onrender.com',
+  'luckwin': 'https://api-luckwin-vannhat-banhu-2.onrender.com',
+  'hitclub': 'https://api-hitclub-aipro-vannhat.onrender.com',
+  'sicbo-sun': 'https://tele-idolvannhat-sicbo-sun.onrender.com',
   'game-tool': 'https://api-another-game.onrender.com',
   'other-api': 'https://example-api.onrender.com'
 };
