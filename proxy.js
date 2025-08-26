@@ -1,10 +1,11 @@
 const express = require('express');
 const proxy = require('express-http-proxy');
+const axios = require('axios');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware CORS để cho phép các yêu cầu từ mọi nguồn
+// ✅ Middleware CORS
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -15,7 +16,7 @@ app.use((req, res, next) => {
     next();
 });
 
-// Định nghĩa các API backend với tên tùy chỉnh
+// ✅ Định nghĩa các API backend
 const API_BACKENDS = {
   'luckwinmd5': 'https://api-luckwin-vannhat-bando.onrender.com',
   'luckwin': 'https://api-luckwin-vannhat-banhu-2.onrender.com',
@@ -23,7 +24,7 @@ const API_BACKENDS = {
   'sicbo-sun': 'https://tele-idolvannhat-sicbo-sun.onrender.com',
 };
 
-// Middleware proxy chung cho tất cả các backend
+// ✅ Proxy middleware
 app.use('/:apiName/*', (req, res, next) => {
   const apiName = req.params.apiName;
   const targetUrl = API_BACKENDS[apiName];
@@ -32,22 +33,35 @@ app.use('/:apiName/*', (req, res, next) => {
     return res.status(404).send('API not found');
   }
 
-  // Chuyển tiếp yêu cầu đến backend tương ứng
   proxy(targetUrl, {
     proxyReqPathResolver: (req) => {
       const path = req.originalUrl;
       const newPath = path.substring(`/${apiName}`.length);
       return newPath;
     },
-    proxyReqOptDecorator: (proxyReqOpts, originalReq) => {
-      // Đảm bảo host header được đặt đúng
+    proxyReqOptDecorator: (proxyReqOpts) => {
       proxyReqOpts.headers['host'] = new URL(targetUrl).hostname;
       return proxyReqOpts;
     }
   })(req, res, next);
 });
 
-// Bắt đầu lắng nghe
+// ✅ Route test xem server sống chưa
+app.get('/', (req, res) => {
+  res.json({ status: "Proxy API running 🚀", time: new Date().toISOString() });
+});
+
+// ✅ Tự động ping chính nó mỗi 15 phút để Render không ngủ
+setInterval(async () => {
+  try {
+    await axios.get(`http://localhost:${PORT}`);
+    console.log("Ping OK ✅ - giữ server sống");
+  } catch (err) {
+    console.error("Ping lỗi ❌", err.message);
+  }
+}, 15 * 60 * 1000); // 15 phút
+
+// ✅ Start server
 app.listen(PORT, () => {
   console.log(`API Proxy listening on port ${PORT}`);
 });
