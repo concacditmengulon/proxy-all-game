@@ -22,6 +22,8 @@ const API_BACKENDS = {
   'luckwin': 'https://api-luckwin-vannhat-banhu-2.onrender.com',
   'hitclub': 'https://api-hitclub-aipro-vannhat.onrender.com',
   'sicbo-sun': 'https://tele-idolvannhat-sicbo-sun.onrender.com',
+  'b52': 'https://api-b52-vannhat-predict-ai-v0g3.onrender.com/',
+  'b52-md5': 'https://api-b52-vannhat-predict-ai-v0g3.onrender.com',
 };
 
 // ✅ Proxy middleware
