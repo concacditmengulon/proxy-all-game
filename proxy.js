@@ -21,8 +21,6 @@ const API_BACKENDS = {
   'luckwin': 'https://api-luckwin-vannhat-banhu-2.onrender.com',
   'hitclub': 'https://api-hitclub-aipro-vannhat.onrender.com',
   'sicbo-sun': 'https://tele-idolvannhat-sicbo-sun.onrender.com',
-  'game-tool': 'https://api-another-game.onrender.com',
-  'other-api': 'https://example-api.onrender.com'
 };
 
 // Middleware proxy chung cho tất cả các backend
